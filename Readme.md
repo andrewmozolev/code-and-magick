@@ -1,7 +1,7 @@
 # Личный проект «Код и Магия» [![Build status][travis-image]][travis-url] [![Dependency status][dependency-image]][dependency-url]
 
 * Студент: [Andrey Mozolev](https://up.htmlacademy.ru/javascript/5/user/125911).
-* Наставник: `Неизвестно`.
+* Наставник: [Софья Ильинова](https://htmlacademy.ru/profile/i).
 
 ---
 
