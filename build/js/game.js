@@ -92,7 +92,6 @@
       object.direction = object.direction & ~Direction.DOWN;
       object.direction = object.direction | Direction.UP;
       object.y -= object.speed * timeframe * 2;
-
       if (object.y < 0) {
         object.y = 0;
       }
@@ -367,7 +366,7 @@
       if (evt.keyCode === 32) {
         evt.preventDefault();
         var needToRestartTheGame = this.state.currentStatus === Verdict.WIN ||
-            this.state.currentStatus === Verdict.FAIL;
+          this.state.currentStatus === Verdict.FAIL;
         this.initializeLevelAndStart(this.level, needToRestartTheGame);
 
         window.removeEventListener('keydown', this._pauseListener);
@@ -375,23 +374,118 @@
     },
 
     /**
+     * Разбивание текста на массив с заданным количеством символов.
+     * @param  {string} text Принимаемый текст.
+     * @param  {number} N    Максимальное количество символов.
+     * @return {array}       Массив из строк нужной длины.
+     */
+    _splitTextToLines: function(text, N) {
+      var words = text.split(' ');
+      var line = words.shift();
+      var arrayLine = [];
+
+      words.forEach(function(word) {
+        var textLine = line + ' ' + word;
+        if (textLine.length > N) {
+          arrayLine.push(line);
+          line = word;
+        } else {
+          line = textLine;
+        }
+      });
+      arrayLine.push(line);
+
+      return arrayLine;
+    },
+
+    /**
+     * Рисуем окно для вывода сообщений.
+     * @param  {number} x            Координата X.
+     * @param  {number} y            Координата Y.
+     * @param  {number} width        Ширина окна.
+     * @param  {number} height       Высота окна.
+     * @param  {string} color        Цвет окна.
+     */
+    _drawWindow: function(x, y, width, height, color) {
+      this.ctx.fillStyle = color;
+      this.ctx.fillRect(x, y - height, width, height);
+      // Нижний уголок.
+      this.ctx.beginPath();
+      this.ctx.moveTo(x + 20, y);
+      this.ctx.lineTo(x, y + 45);
+      this.ctx.lineTo(x + 50, y);
+      this.ctx.lineTo(x + 10, y);
+      this.ctx.closePath();
+      this.ctx.fill();
+    },
+
+    /**
+     * Отрисовка окна сообщений и текста.
+     * @param  {string} text Принимаемый текст.
+     */
+    _drawMessage: function(text) {
+      var character = this.state.objects[this.level];
+
+      // Окно сообщения
+      var messageX = character.x + character.width;
+      var messageY = character.y;
+      var messageWidth = 240;
+      var messageHeight = 0;
+      var windowColor = '#FFFFFF';
+
+      // Тень окна
+      var shadowX = messageX + 10;
+      var shadowY = messageY + 10;
+      var shadowColor = 'rgba(0, 0, 0, 0.7)';
+
+      // Текст
+      var fontSize = 16;
+      this.ctx.font = fontSize + 'px PT Mono';
+      var letterWidth = this.ctx.measureText(' ').width;
+      var N = (messageWidth - 20) / letterWidth;
+      var lines = this._splitTextToLines(text, N);
+      var lineHeight = fontSize * 1.3;
+      messageHeight = lines.length * lineHeight;
+      var textColor = '#000000';
+      var textX = messageX + 10;
+      var textY = messageY - messageHeight + (lineHeight - fontSize);
+
+      // Рисуем тень.
+      this._drawWindow(shadowX, shadowY, messageWidth, messageHeight, shadowColor);
+
+      // Рисуем окно сообщений.
+      this._drawWindow(messageX, messageY, messageWidth, messageHeight, windowColor);
+
+      // Рисуем текст.
+      this.ctx.textBaseline = 'hanging';
+      this.ctx.fillStyle = textColor;
+      lines.forEach(function(line) {
+        this.ctx.fillText(line, textX, textY);
+        textY += lineHeight;
+      }, this);
+    },
+
+    /**
      * Отрисовка экрана паузы.
      */
     _drawPauseScreen: function() {
+      var messageText;
+
       switch (this.state.currentStatus) {
         case Verdict.WIN:
-          console.log('you have won!');
+          messageText = 'You have won!';
           break;
         case Verdict.FAIL:
-          console.log('you have failed!');
+          messageText = 'You have failed!';
           break;
         case Verdict.PAUSE:
-          console.log('game is on pause!');
+          messageText = 'Game is on pause!';
           break;
         case Verdict.INTRO:
-          console.log('welcome to the game! Press Space to start');
+          messageText = 'Welcome to the game! Press Space to start';
           break;
       }
+      this._drawMessage(messageText);
     },
 
     /**
@@ -505,8 +599,8 @@
             })[0];
 
             return me.state === ObjectState.DISPOSED ?
-                Verdict.FAIL :
-                Verdict.CONTINUE;
+              Verdict.FAIL :
+              Verdict.CONTINUE;
           },
 
           /**
@@ -525,8 +619,8 @@
            */
           function checkTime(state) {
             return Date.now() - state.startTime > 3 * 60 * 1000 ?
-                Verdict.FAIL :
-                Verdict.CONTINUE;
+              Verdict.FAIL :
+              Verdict.CONTINUE;
           }
         ];
       }
@@ -574,8 +668,8 @@
         if (object.sprite) {
           var image = new Image(object.width, object.height);
           image.src = (object.spriteReversed && object.direction & Direction.LEFT) ?
-              object.spriteReversed :
-              object.sprite;
+            object.spriteReversed :
+            object.sprite;
           this.ctx.drawImage(image, object.x, object.y, object.width, object.height);
         }
       }, this);
