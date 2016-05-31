@@ -1,4 +1,5 @@
 'use strict';
+
 function getMessage(a, b) {
   var typeOfA = typeof a;
   var isArrayA = Array.isArray(a);
@@ -12,17 +13,14 @@ function getMessage(a, b) {
     } else {
       return 'Я никуда не попал';
     }
-  }
-  else if (typeOfA === 'number') {
+  } else if (typeOfA === 'number') {
     return 'Я прыгнул на ' + (a * 100) + ' сантиметров';
-  }
-  else if (isArrayA && !isArrayB) {
+  } else if (isArrayA && !isArrayB) {
     sum = a.reduce(function(previousValue, currentValue) {
       return previousValue + currentValue;
     });
     return 'Я прошёл ' + sum + ' шагов';
-  }
-  else if (isArrayA && isArrayB) {
+  } else if (isArrayA && isArrayB) {
     length = a.reduce(function(previousValue, currentValue, i) {
       return previousValue + currentValue * b[i];
     }, 0);
