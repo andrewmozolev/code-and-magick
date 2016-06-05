@@ -30,24 +30,41 @@
   name.required = true;
   name.addEventListener('input', checkInputs);
   text.addEventListener('input', checkInputs);
-
+  createAlert(name);
+  createAlert(text);
 
   for (var i = 0; i < marks.length; i++) {
     if (marks[i].checked) {
       isRatingCorrect = marks[i].checked && marks[i].value > MAX_RATING;
+      checkInputs();
     }
     marks[i].addEventListener('change', function() {
       isRatingCorrect = this.value > MAX_RATING;
       checkInputs();
     });
-    checkInputs();
   }
+
+
+  function createAlert(input) {
+    var elemAlert = document.createElement('div');
+    elemAlert.classList.add(input.name + '-alert');
+    input.insertAdjacentElement('afterEnd', elemAlert);
+  }
+
+
+  function inputAlertChange(input) {
+    var alert = document.querySelector('.' + input.name + '-alert');
+    alert.innerHTML = input.validationMessage;
+    alert.classList.toggle('invisible', input.validity.valid);
+  }
+
 
   /**
    * Проверка поля ввода
    * @param  {object}  input  Инпут который нужно проверить.
    */
   function isInputCorrect(input) {
+    inputAlertChange(input);
     return input.required ? Boolean(input.value) : true;
   }
 
