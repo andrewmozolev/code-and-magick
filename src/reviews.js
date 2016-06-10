@@ -1,5 +1,23 @@
 'use strict';
 
+/**
+ * Выполняем JSONP запрос
+ * @param  {string}   source      Адрес запроса
+ * @param  {Function} callback
+ */
+function callJSONP(source, callback) {
+  window.__reviewsLoadCallback = function(data) {
+    delete window.__reviewsLoadCallback;
+    document.body.removeChild(script);
+    callback(data);
+  };
+
+  var script = document.createElement('script');
+  script.src = source;
+  document.body.appendChild(script);
+}
+
+
 (function() {
   var filter = document.querySelector('.reviews-filter');
   var reviewsContainter = document.querySelector('.reviews-list');
@@ -76,8 +94,10 @@
   };
 
 
-  window.reviews.forEach(function(reviews) {
-    getReviewsElement(reviews, reviewsContainter);
+  callJSONP('//up.htmlacademy.ru/assets/js_intensive/jsonp/reviews.js', function(reviews) {
+    reviews.forEach(function(review) {
+      getReviewsElement(review, reviewsContainter);
+    });
   });
 
   filter.classList.remove('invisible');
