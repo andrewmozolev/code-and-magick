@@ -356,6 +356,30 @@ input[type=radio]:checked + .reviews-filter-item {
   border: solid 1px;
 }
 
+.review-message {
+  display: block;
+  width: 500px;
+  margin: 0 auto;
+  margin-bottom: 40px;
+  padding: 0 15px;
+
+  text-align: center;
+  font-weight: bold;
+  font-size: 22px;
+  line-height: 36px;
+
+  color: #000000;
+  background: #ffffff;
+  border-bottom: solid 2px;
+  box-shadow: 3px 3px 0 #000000;
+}
+
+.filter-disabled {
+  color: #cccccc;
+  border: none;
+  cursor: default;
+}
+
 footer {
   font-size: 16px;
   line-height: 1.6;
