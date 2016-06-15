@@ -6,6 +6,7 @@
   var templateElement = document.querySelector('#review-template');
   var templateMessage = document.querySelector('#review-message-template');
   var reviewsBlock = document.querySelector('.reviews');
+  var buttonMoreReviews = document.querySelector('.reviews-controls-more');
   var elementToClone;
   var elementMessageToClone;
   var IMAGE_LOAD_TIMEOUT = 10000;
@@ -14,6 +15,8 @@
   var REVIEWS_LOAD_URL = '//o0.github.io/assets/json/reviews.json';
   var SERVER_LOAD_TIMEOUT = 10000;
   var REVIEWS_LAST_DAYS = 4;
+  var pageNumber = 0;
+  var filteredReviews = [];
   var reviews;
 
   filtersContainer.classList.add('invisible');
@@ -135,6 +138,32 @@
     xhr.send();
   };
 
+  /**
+   * Настройка для отрисовки следующей страницы
+   * @param {Array} reviewsArray Массив отзывов
+   */
+  var loadNextPage = function(reviewsArray) {
+    var pageSize = 3;
+    var from = pageNumber * pageSize;
+    var to = from + pageSize;
+    var replace = from === 0;
+    var nextPageReviews = reviewsArray.slice(from, to);
+    // Показываем или скрываем кнопку "Еще отзывы"
+    buttonMoreReviews.classList.toggle('invisible', to >= reviewsArray.length);
+    if (nextPageReviews.length > 0) {
+      renderReviews(nextPageReviews, replace);
+      pageNumber++;
+    }
+  };
+
+  /**
+   * Добавление события клика для кнопки "Еще отзывы"
+   */
+  var setButtonEnabled = function() {
+    buttonMoreReviews.addEventListener('click', function() {
+      loadNextPage(filteredReviews);
+    });
+  };
 
   /**
    * Добавляем каждому фильтру количество отзывов
@@ -151,7 +180,7 @@
     var filtersLabel = filtersContainer.querySelectorAll('label');
     Array.prototype.forEach.call(filtersLabel, function(filterLabel) {
       var filterName = filterLabel.getAttribute('for');
-      var filteredReviews = getFilteredReviews(reviews, filterName);
+      filteredReviews = getFilteredReviews(reviews, filterName);
       // Если отзывов 0 при данном фильтре, добавляем фильтру класс .filter-disabled
       filterLabel.classList.toggle('filter-disabled', filteredReviews.length === 0);
       renderQuantityReviews(filteredReviews.length, filterLabel);
@@ -162,13 +191,18 @@
   /**
    * Отрисовываем отзывы
    * @param  {Array} reviewsArray Массив отзывов
+   * @param {Boolean} replace
    */
-  var renderReviews = function(reviewsArray) {
+  var renderReviews = function(reviewsArray, replace) {
     // Очищаем контейнер отзывов
-    reviewsContainter.innerHTML = '';
+    if (replace) {
+      reviewsContainter.innerHTML = '';
+    }
+
     if (reviewsArray.length === 0) {
       getMessageElement('Нет подходящих сообщений. <br> Попробуйте изменить фильтрацию.', reviewsContainter);
     }
+
     // Отрисовываем каждый отзыв
     reviewsArray.forEach(function(review) {
       getReviewsElement(review, reviewsContainter);
@@ -251,17 +285,17 @@
    * @param {string} filter Название фильтра
    */
   var setFilterEnabled = function(filter) {
-    var filteredReviews = getFilteredReviews(reviews, filter);
-    renderReviews(filteredReviews);
+    filteredReviews = getFilteredReviews(reviews, filter);
+    pageNumber = 0;
+    loadNextPage(filteredReviews);
   };
 
   // Добаляет каждому фильтру обработчик клика
   var setFiltersEnabled = function() {
-    var filters = filtersContainer.querySelectorAll('input');
-    Array.prototype.forEach.call(filters, function(filter) {
-      filter.onclick = function() {
-        setFilterEnabled(this.id);
-      };
+    filtersContainer.addEventListener('click', function(evt) {
+      if (evt.target.classList.contains('reviews-filter-item')) {
+        setFilterEnabled(evt.target.getAttribute('for'));
+      }
     });
   };
 
@@ -277,6 +311,7 @@
       // Включаем и отрисовываем начальный фильтр
       setFilterEnabled('reviews-all');
       setFiltersEnabled();
+      setButtonEnabled();
     }
   });
 
