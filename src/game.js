@@ -775,6 +775,55 @@
   window.Game = Game;
   window.Game.Verdict = Verdict;
 
+  /**
+   * Добавляем анимацию облакам
+   */
+  function moveClouds() {
+    var cloudsElement = document.querySelector('.header-clouds');
+    var headerElement = document.querySelector('header');
+    var headerPosition = headerElement.getBoundingClientRect();
+    cloudsElement.style.backgroundPosition = 50 + headerPosition.top / 10 + '%';
+  }
+
+  /**
+   * Проверка видимости элемента
+   * @param  {HTMLElement}  element Элемент который проверяем
+   * @return {Boolean}
+   */
+  function isVisible(element) {
+    var elementPosition = element.getBoundingClientRect();
+    return elementPosition.bottom > 0;
+  }
+
+  /**
+   * Throttle
+   * @param  {function} callback Функция которую нужно оптимизировать
+   * @param  {number} timeDelay      Кол-во миллисекунд вызова функции
+   * @return {function}              Оптимизированная функция
+   */
+  function throttle(callback, timeDelay) {
+    var lastCall = Date.now();
+    return function() {
+      if (Date.now() - lastCall >= timeDelay) {
+        callback();
+        lastCall = Date.now();
+      }
+    };
+  }
+
+  var setScrollGame = throttle(function() {
+    var gameBlock = document.querySelector('.demo');
+    if (isVisible(gameBlock)) {
+      window.addEventListener('scroll', moveClouds);
+    } else {
+      game.setGameStatus(window.Game.Verdict.PAUSE);
+      window.removeEventListener('scroll', moveClouds);
+    }
+  }, 100);
+
+  window.addEventListener('scroll', setScrollGame);
+
+
   var game = new Game(document.querySelector('.demo'));
   game.initializeLevelAndStart();
   game.setGameStatus(window.Game.Verdict.INTRO);
