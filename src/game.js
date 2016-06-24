@@ -1,5 +1,7 @@
 'use strict';
 
+var utils = require('./utils');
+
 (function() {
   /**
    * @const
@@ -785,35 +787,9 @@
     cloudsElement.style.backgroundPosition = 50 + headerPosition.top / 10 + '%';
   }
 
-  /**
-   * Проверка видимости элемента
-   * @param  {HTMLElement}  element Элемент который проверяем
-   * @return {Boolean}
-   */
-  function isVisible(element) {
-    var elementPosition = element.getBoundingClientRect();
-    return elementPosition.bottom > 0;
-  }
-
-  /**
-   * Throttle
-   * @param  {function} callback Функция которую нужно оптимизировать
-   * @param  {number} timeDelay      Кол-во миллисекунд вызова функции
-   * @return {function}              Оптимизированная функция
-   */
-  function throttle(callback, timeDelay) {
-    var lastCall = Date.now();
-    return function() {
-      if (Date.now() - lastCall >= timeDelay) {
-        callback();
-        lastCall = Date.now();
-      }
-    };
-  }
-
-  var setScrollGame = throttle(function() {
+  var setScrollGame = utils.throttle(function() {
     var gameBlock = document.querySelector('.demo');
-    if (isVisible(gameBlock)) {
+    if (utils.isVisible(gameBlock)) {
       window.addEventListener('scroll', moveClouds);
     } else {
       game.setGameStatus(window.Game.Verdict.PAUSE);
