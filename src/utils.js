@@ -3,6 +3,12 @@
 var IMAGE_LOAD_TIMEOUT = 10000;
 
 module.exports = {
+  KeyCode: {
+    ESC: 27,
+    LEFT: 37,
+    RIGHT: 39
+  },
+
   /**
    * Проверка видимости элемента
    * @param  {HTMLElement} element  Элемент который проверяем
