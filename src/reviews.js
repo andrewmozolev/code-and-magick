@@ -2,7 +2,7 @@
 
 var load = require('./xhr');
 
-var getReviewsElement = require('./review/get-review-element');
+var Review = require('./review/review');
 var getMessageElement = require('./review/get-review-message');
 
 var getFilteredReviews = require('./filter/filter');
@@ -17,6 +17,7 @@ var REVIEWS_LOAD_URL = '//o0.github.io/assets/json/reviews.json';
 
 var pageNumber = 0;
 var filteredReviews = [];
+var renderedReviews = [];
 var reviews;
 
 filtersContainer.classList.add('invisible');
@@ -57,7 +58,10 @@ var setButtonEnabled = function() {
 var renderReviews = function(reviewsArray, replace) {
   // Очищаем контейнер отзывов
   if (replace) {
-    reviewsContainter.innerHTML = '';
+    renderedReviews.forEach(function(review) {
+      review.remove();
+    });
+    renderedReviews = [];
   }
 
   if (reviewsArray.length === 0) {
@@ -66,7 +70,7 @@ var renderReviews = function(reviewsArray, replace) {
 
   // Отрисовываем каждый отзыв
   reviewsArray.forEach(function(review) {
-    getReviewsElement(review, reviewsContainter);
+    renderedReviews.push(new Review(review, reviewsContainter));
   });
 };
 
