@@ -2,102 +2,86 @@
 
 var utils = require('../utils');
 
-var galleryContainer = document.querySelector('.overlay-gallery');
-var controlLeft = galleryContainer.querySelector('.overlay-gallery-control-left');
-var controlRight = galleryContainer.querySelector('.overlay-gallery-control-right');
-var galleryPreview = galleryContainer.querySelector('.overlay-gallery-preview');
-var close = galleryContainer.querySelector('.overlay-gallery-close');
-var currentNumber = galleryContainer.querySelector('.preview-number-current');
-var totalNumber = galleryContainer.querySelector('.preview-number-total');
+var Gallery = function(pictures) {
+  var self = this;
+  this.container = document.querySelector('.overlay-gallery');
+  this.controlLeft = this.container.querySelector('.overlay-gallery-control-left');
+  this.controlRight = this.container.querySelector('.overlay-gallery-control-right');
+  this.currentNumber = this.container.querySelector('.preview-number-current');
+  this.totalNumber = this.container.querySelector('.preview-number-total');
+  this.close = this.container.querySelector('.overlay-gallery-close');
+  this.galleryPreview = this.container.querySelector('.overlay-gallery-preview');
 
-var activePicture = 0;
-var galleryPictures = [];
-var preview;
+  this.activePicture = 0;
+  this.pictures = pictures;
 
+  this._onDocumentKeyDown = function(evt) {
+    var keyCode = evt.keyCode;
+    switch (keyCode) {
+      case utils.KeyCode.ESC:
+        self.hide();
+        break;
+      case utils.KeyCode.LEFT:
+        self.showPreviousPicture();
+        break;
+      case utils.KeyCode.RIGHT:
+        self.showNextPicture();
+        break;
+    }
+  };
 
-function _onDocumentKeyDown(evt) {
-  var keyCode = evt.keyCode;
-  switch (keyCode) {
-    case utils.KeyCode.ESC:
-      hideGallery();
-      break;
-    case utils.KeyCode.LEFT:
-      showPreviousPicture();
-      break;
-    case utils.KeyCode.RIGHT:
-      showNextPicture();
-      break;
-  }
-}
+  this.showPicture = function(number) {
+    if (!self.preview) {
+      self.preview = new Image();
+      self.galleryPreview.appendChild(self.preview);
+    }
 
-/**
- * Скрываем галерею.
- */
-function hideGallery() {
-  galleryContainer.classList.add('invisible');
-  controlLeft.removeEventListener('click', showPreviousPicture);
-  controlRight.removeEventListener('click', showNextPicture);
-  close.removeEventListener('click', hideGallery);
-  document.removeEventListener('keydown', _onDocumentKeyDown);
-}
+    self.preview.src = self.pictures[number];
+    self.currentNumber.innerHTML = number + 1;
+    self.activePicture = number;
+  };
 
-/**
- * Показываем нужное изображение.
- * @param  {number} number Номер изображения.
- */
-function showPicture(number) {
+  this.showPreviousPicture = function() {
+    var previousNumber = self.activePicture === 0 ? self.pictures.length - 1 : self.activePicture - 1;
+    self.showPicture(previousNumber);
+  };
 
-  if (!galleryPreview.querySelector('img')) {
-    preview = new Image();
-    galleryPreview.appendChild(preview);
-  }
+  this.showNextPicture = function() {
+    var nextNumber = self.activePicture === self.pictures.length - 1 ? 0 : self.activePicture + 1;
+    self.showPicture(nextNumber);
+  };
 
-  preview.src = galleryPictures[number];
-  currentNumber.innerHTML = number + 1;
+  this.onLeftControlClick = function() {
+    this.controlLeft.addEventListener('click', self.showPreviousPicture);
+  };
 
-  activePicture = number;
-}
-
-/**
- * Показываем предыдущее изображение.
- */
-function showPreviousPicture() {
-  var previousNumber = activePicture === 0 ? galleryPictures.length - 1 : activePicture - 1;
-  showPicture(previousNumber);
-}
-
-/**
- * Показываем следующее изображение.
- * @return {[type]} [description]
- */
-function showNextPicture() {
-  var nextNumber = activePicture === galleryPictures.length - 1 ? 0 : activePicture + 1;
-  showPicture(nextNumber);
-}
+  this.onRightControlClick = function() {
+    this.controlRight.addEventListener('click', self.showNextPicture);
+  };
 
 
-module.exports = {
-  /**
-   * Сохраняем массив URL изображений.
-   * @param  {Array} pictures Массив URL изображений.
-   */
-  saveImages: function(pictures) {
-    galleryPictures = pictures;
-    totalNumber.innerHTML = galleryPictures.length;
-  },
+  this.show = function(pictureNumber) {
+    self.activePicture = pictureNumber;
+    self.totalNumber.innerHTML = self.pictures.length;
+    self.container.classList.remove('invisible');
 
-  /**
-   * Показываем галерею
-   * @param  {number} pictureNumber Нормер изображения с которого должен начаться показ.
-   */
-  showGallery: function(pictureNumber) {
-    galleryContainer.classList.remove('invisible');
+    document.addEventListener('keydown', self._onDocumentKeyDown);
+    self.onLeftControlClick();
+    self.onRightControlClick();
+    self.close.addEventListener('click', self.hide);
 
-    document.addEventListener('keydown', _onDocumentKeyDown);
-    controlLeft.addEventListener('click', showPreviousPicture);
-    controlRight.addEventListener('click', showNextPicture);
-    close.addEventListener('click', hideGallery);
+    self.showPicture(pictureNumber);
+  };
 
-    showPicture(pictureNumber);
-  }
+
+  this.hide = function() {
+    self.container.classList.add('invisible');
+    self.controlLeft.removeEventListener('click', self.showNextPicture);
+    self.controlRight.removeEventListener('click', self.showPreviousPicture);
+
+    self.close.removeEventListener('click', self.hide);
+    document.removeEventListener('keydown', self._onDocumentKeyDown);
+  };
 };
+
+module.exports = Gallery;
