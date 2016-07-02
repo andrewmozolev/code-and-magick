@@ -75,12 +75,23 @@ var renderReviews = function(reviewsArray, replace) {
 };
 
 /**
+ * Активируем input для нужного фильтра.
+ * @param {string} filter Активный фильтр.
+ */
+var setInputEnabled = function(filter) {
+  var activeFilter = document.querySelector('#' + filter);
+  activeFilter.checked = true;
+};
+
+/**
  * Передает заданный фильтр, на основе которого отрисовываем список заново
  * @param {string} filter Название фильтра
  */
 var setFilterEnabled = function(filter) {
   filteredReviews = getFilteredReviews(reviews, filter);
   pageNumber = 0;
+  localStorage.setItem('filter', filter);
+  setInputEnabled(filter);
   loadNextPage(filteredReviews);
 };
 
@@ -102,8 +113,10 @@ load(REVIEWS_LOAD_URL, function(error, loadedReviews) {
   } else {
     reviews = loadedReviews;
     getQuantityReviews(reviews, filteredReviews, filtersContainer);
+    var localFilter = localStorage.getItem('filter');
+    var currentFilter = localFilter ? localFilter : 'reviews-all';
     // Включаем и отрисовываем начальный фильтр
-    setFilterEnabled('reviews-all');
+    setFilterEnabled(currentFilter);
     setFiltersEnabled();
     setButtonEnabled();
   }
