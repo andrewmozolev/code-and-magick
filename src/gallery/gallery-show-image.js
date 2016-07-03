@@ -30,25 +30,24 @@ var Gallery = function(pictures) {
     }
   };
 
-  this.showPicture = function(number) {
+  this.showPicture = function(picture) {
     if (!self.preview) {
       self.preview = new Image();
       self.galleryPreview.appendChild(self.preview);
     }
-
-    self.preview.src = self.pictures[number];
-    self.currentNumber.innerHTML = number + 1;
-    self.activePicture = number;
+    self.preview.src = self.pictures[picture];
+    self.currentNumber.innerHTML = picture + 1;
+    self.activePicture = picture;
   };
 
   this.showPreviousPicture = function() {
     var previousNumber = self.activePicture === 0 ? self.pictures.length - 1 : self.activePicture - 1;
-    self.showPicture(previousNumber);
+    self.updateHash(previousNumber);
   };
 
   this.showNextPicture = function() {
     var nextNumber = self.activePicture === self.pictures.length - 1 ? 0 : self.activePicture + 1;
-    self.showPicture(nextNumber);
+    self.updateHash(nextNumber);
   };
 
   this.onLeftControlClick = function() {
@@ -60,8 +59,8 @@ var Gallery = function(pictures) {
   };
 
 
-  this.show = function(pictureNumber) {
-    self.activePicture = pictureNumber;
+  this.show = function(picture) {
+    self.activePicture = picture;
     self.totalNumber.innerHTML = self.pictures.length;
     self.container.classList.remove('invisible');
 
@@ -70,7 +69,7 @@ var Gallery = function(pictures) {
     self.onRightControlClick();
     self.close.addEventListener('click', self.hide);
 
-    self.showPicture(pictureNumber);
+    self.showPicture(self.activePicture);
   };
 
 
@@ -81,7 +80,24 @@ var Gallery = function(pictures) {
 
     self.close.removeEventListener('click', self.hide);
     document.removeEventListener('keydown', self._onDocumentKeyDown);
+    history.pushState('', '', window.location.pathname);
   };
+
+  this.updateHash = function(number) {
+    location.hash = 'photo/' + self.pictures[number];
+  };
+
+  this.hashchange = function() {
+    var hash = location.hash.match(/#photo\/(\S+)/);
+    if (hash) {
+      var numberPicture = self.pictures.indexOf(hash[1]);
+      if (numberPicture !== -1) {
+        self.show(numberPicture);
+      }
+    }
+  };
+
+  window.addEventListener('hashchange', this.hashchange);
 };
 
 module.exports = Gallery;
