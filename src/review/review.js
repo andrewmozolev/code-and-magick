@@ -1,6 +1,8 @@
 'use strict';
 
 var getReviewsElement = require('./get-review-element.js');
+var BaseComponent = require('../base-component');
+var utils = require('../utils');
 
 /**
  * @param {Object} data
@@ -8,13 +10,13 @@ var getReviewsElement = require('./get-review-element.js');
  * @constructor
  */
 var Review = function(data, container) {
-  this.data = data;
-  this.element = getReviewsElement(this.data);
+  BaseComponent.call(this, getReviewsElement(data), container);
   this.onReviewClick = this.onReviewClick.bind(this);
-  this.remove = this.remove.bind(this);
-  this.element.addEventListener('click', this.onReviewClick);
-  container.appendChild(this.element);
+  this.onEvent(this.element, 'click', this.onReviewClick);
+  this.add();
 };
+
+utils.inherit(Review, BaseComponent);
 
 Review.prototype.onReviewClick = function(evt) {
   if (evt.target.classList.contains('review-quiz-answer')) {
@@ -24,11 +26,6 @@ Review.prototype.onReviewClick = function(evt) {
     evt.target.classList.add('review-quiz-answer-active');
     this.activeAnsver = evt.target;
   }
-};
-
-Review.prototype.remove = function() {
-  this.element.removeEventListener('click', this.onReviewClick);
-  this.element.parentNode.removeChild(this.element);
 };
 
 module.exports = Review;

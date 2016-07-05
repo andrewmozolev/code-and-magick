@@ -71,11 +71,11 @@ module.exports = {
     var imageLoadTimeout = setTimeout(function() {
       callback(false);
     }, IMAGE_LOAD_TIMEOUT);
+  },
+
+  inherit: function(ChildComponent, BaseComponent) {
+    function EmptyCtor() {}
+    EmptyCtor.prototype = BaseComponent.prototype;
+    ChildComponent.prototype = new EmptyCtor();
   }
 };
-
-
-
-
-
-
