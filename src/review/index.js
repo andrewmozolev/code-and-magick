@@ -5,7 +5,7 @@ var load = require('../xhr');
 var Review = require('./review');
 var getMessageElement = require('./get-review-message');
 
-var getFilteredReviews = require('../filter/filter');
+var getFilteredReviews = require('../filter');
 var getQuantityReviews = require('./get-review-quantity');
 
 var Data = require('./data-component');
@@ -82,7 +82,7 @@ var renderReviews = function(reviewsArray, replace) {
  */
 var setInputEnabled = function(filter) {
   var activeFilter = document.querySelector('#' + filter);
-  activeFilter.checked = true;
+  activeFilter.checked = !activeFilter.disabled;
 };
 
 /**
