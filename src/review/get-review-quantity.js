@@ -1,6 +1,6 @@
 'use strict';
 
-var getFilteredReviews = require('../filter/filter');
+var getFilteredReviews = require('../filter');
 
 /**
  * Добавляем каждому фильтру количество отзывов.
@@ -22,8 +22,13 @@ var getQuantityReviews = function(reviews, filteredReviews, filtersContainer) {
   Array.prototype.forEach.call(filtersLabel, function(filterLabel) {
     var filterName = filterLabel.getAttribute('for');
     filteredReviews = getFilteredReviews(reviews, filterName);
+    var isEmptyReviews = filteredReviews.length === 0;
     // Если отзывов 0 при данном фильтре, добавляем фильтру класс .filter-disabled
-    filterLabel.classList.toggle('filter-disabled', filteredReviews.length === 0);
+    filterLabel.classList.toggle('filter-disabled', isEmptyReviews);
+
+    var filterInput = filtersContainer.querySelector('#' + filterName);
+    filterInput.disabled = isEmptyReviews;
+
     renderQuantityReviews(filteredReviews.length, filterLabel);
   });
 };

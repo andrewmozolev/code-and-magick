@@ -3,7 +3,6 @@
 var utils = require('../utils');
 
 var Gallery = function(pictures) {
-  var self = this;
   this.container = document.querySelector('.overlay-gallery');
   this.controlLeft = this.container.querySelector('.overlay-gallery-control-left');
   this.controlRight = this.container.querySelector('.overlay-gallery-control-right');
@@ -15,89 +14,86 @@ var Gallery = function(pictures) {
   this.activePicture = 0;
   this.pictures = pictures;
 
-  this._onDocumentKeyDown = function(evt) {
-    var keyCode = evt.keyCode;
-    switch (keyCode) {
-      case utils.KeyCode.ESC:
-        self.hide();
-        break;
-      case utils.KeyCode.LEFT:
-        self.showPreviousPicture();
-        break;
-      case utils.KeyCode.RIGHT:
-        self.showNextPicture();
-        break;
-    }
-  };
-
-  this.showPicture = function(picture) {
-    if (!self.preview) {
-      self.preview = new Image();
-      self.galleryPreview.appendChild(self.preview);
-    }
-    self.preview.src = self.pictures[picture];
-    self.currentNumber.innerHTML = picture + 1;
-    self.activePicture = picture;
-  };
-
-  this.showPreviousPicture = function() {
-    var previousNumber = self.activePicture === 0 ? self.pictures.length - 1 : self.activePicture - 1;
-    self.updateHash(previousNumber);
-  };
-
-  this.showNextPicture = function() {
-    var nextNumber = self.activePicture === self.pictures.length - 1 ? 0 : self.activePicture + 1;
-    self.updateHash(nextNumber);
-  };
-
-  this.onLeftControlClick = function() {
-    this.controlLeft.addEventListener('click', self.showPreviousPicture);
-  };
-
-  this.onRightControlClick = function() {
-    this.controlRight.addEventListener('click', self.showNextPicture);
-  };
-
-
-  this.show = function(picture) {
-    self.activePicture = picture;
-    self.totalNumber.innerHTML = self.pictures.length;
-    self.container.classList.remove('invisible');
-
-    document.addEventListener('keydown', self._onDocumentKeyDown);
-    self.onLeftControlClick();
-    self.onRightControlClick();
-    self.close.addEventListener('click', self.hide);
-
-    self.showPicture(self.activePicture);
-  };
-
-
-  this.hide = function() {
-    self.container.classList.add('invisible');
-    self.controlLeft.removeEventListener('click', self.showNextPicture);
-    self.controlRight.removeEventListener('click', self.showPreviousPicture);
-
-    self.close.removeEventListener('click', self.hide);
-    document.removeEventListener('keydown', self._onDocumentKeyDown);
-    history.pushState('', '', window.location.pathname);
-  };
-
-  this.updateHash = function(number) {
-    location.hash = 'photo/' + self.pictures[number];
-  };
-
-  this.hashchange = function() {
-    var hash = location.hash.match(/#photo\/(\S+)/);
-    if (hash) {
-      var numberPicture = self.pictures.indexOf(hash[1]);
-      if (numberPicture !== -1) {
-        self.show(numberPicture);
-      }
-    }
-  };
+  this._onDocumentKeyDown = this._onDocumentKeyDown.bind(this);
+  this.hashchange = this.hashchange.bind(this);
+  this.hide = this.hide.bind(this);
+  this.showPreviousPicture = this.showPreviousPicture.bind(this);
+  this.showNextPicture = this.showNextPicture.bind(this);
 
   window.addEventListener('hashchange', this.hashchange);
+};
+
+Gallery.prototype._onDocumentKeyDown = function(evt) {
+  var keyCode = evt.keyCode;
+  switch (keyCode) {
+    case utils.KeyCode.ESC:
+      this.hide();
+      break;
+    case utils.KeyCode.LEFT:
+      this.showPreviousPicture();
+      break;
+    case utils.KeyCode.RIGHT:
+      this.showNextPicture();
+      break;
+  }
+};
+
+Gallery.prototype.showPicture = function(picture) {
+  if (!this.preview) {
+    this.preview = new Image();
+    this.galleryPreview.appendChild(this.preview);
+  }
+  this.preview.src = this.pictures[picture];
+  this.currentNumber.innerHTML = picture + 1;
+  this.activePicture = picture;
+};
+
+Gallery.prototype.showPreviousPicture = function() {
+  var previousNumber = this.activePicture === 0 ? this.pictures.length - 1 : this.activePicture - 1;
+  this.updateHash(previousNumber);
+};
+
+Gallery.prototype.showNextPicture = function() {
+  var nextNumber = this.activePicture === this.pictures.length - 1 ? 0 : this.activePicture + 1;
+  this.updateHash(nextNumber);
+};
+
+Gallery.prototype.show = function(picture) {
+  this.activePicture = picture;
+  this.totalNumber.innerHTML = this.pictures.length;
+  this.container.classList.remove('invisible');
+
+  document.addEventListener('keydown', this._onDocumentKeyDown);
+  this.controlLeft.addEventListener('click', this.showPreviousPicture);
+  this.controlRight.addEventListener('click', this.showNextPicture);
+  this.close.addEventListener('click', this.hide);
+
+  this.showPicture(this.activePicture);
+};
+
+
+Gallery.prototype.hide = function() {
+  this.container.classList.add('invisible');
+  this.controlLeft.removeEventListener('click', this.showNextPicture);
+  this.controlRight.removeEventListener('click', this.showPreviousPicture);
+
+  this.close.removeEventListener('click', this.hide);
+  document.removeEventListener('keydown', this._onDocumentKeyDown);
+  history.pushState('', '', window.location.pathname);
+};
+
+Gallery.prototype.updateHash = function(number) {
+  location.hash = 'photo/' + this.pictures[number];
+};
+
+Gallery.prototype.hashchange = function() {
+  var hash = location.hash.match(/#photo\/(\S+)/);
+  if (hash) {
+    var numberPicture = this.pictures.indexOf(hash[1]);
+    if (numberPicture !== -1) {
+      this.show(numberPicture);
+    }
+  }
 };
 
 module.exports = Gallery;

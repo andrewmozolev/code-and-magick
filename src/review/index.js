@@ -1,13 +1,14 @@
 'use strict';
 
-var load = require('./xhr');
+var load = require('../xhr');
 
-var Review = require('./review/review');
-var getMessageElement = require('./review/get-review-message');
+var Review = require('./review');
+var getMessageElement = require('./get-review-message');
 
-var getFilteredReviews = require('./filter/filter');
-var getQuantityReviews = require('./review/get-review-quantity');
+var getFilteredReviews = require('../filter');
+var getQuantityReviews = require('./get-review-quantity');
 
+var Data = require('./data-component');
 
 var filtersContainer = document.querySelector('.reviews-filter');
 var reviewsContainter = document.querySelector('.reviews-list');
@@ -70,7 +71,8 @@ var renderReviews = function(reviewsArray, replace) {
 
   // Отрисовываем каждый отзыв
   reviewsArray.forEach(function(review) {
-    renderedReviews.push(new Review(review, reviewsContainter));
+    var dataReview = new Data(review);
+    renderedReviews.push(new Review(dataReview, reviewsContainter));
   });
 };
 
@@ -80,7 +82,7 @@ var renderReviews = function(reviewsArray, replace) {
  */
 var setInputEnabled = function(filter) {
   var activeFilter = document.querySelector('#' + filter);
-  activeFilter.checked = true;
+  activeFilter.checked = !activeFilter.disabled;
 };
 
 /**

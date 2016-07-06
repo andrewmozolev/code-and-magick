@@ -16,19 +16,19 @@ var elementToClone = utils.getElementToClone(templateElement, '.review');
 var getReviewsElement = function(data) {
   var element = elementToClone.cloneNode(true);
   var authorImage = element.querySelector('.review-author');
-  element.querySelector('.review-text').textContent = data.description;
+  element.querySelector('.review-text').textContent = data.getDescription();
 
 
   var rating = element.querySelector('.review-rating');
   var ratingArray = ['', '', 'two', 'three', 'four', 'five'];
-  if (data.rating > 1) {
-    rating.classList.add('review-rating-' + ratingArray[data.rating]);
+  if (data.getRating() > 1) {
+    rating.classList.add('review-rating-' + ratingArray[data.getRating()]);
   }
 
 
-  utils.loadImage(data.author.picture, function(isOk) {
+  utils.loadImage(data.getPictureUrl(), function(isOk) {
     if (isOk) {
-      authorImage.src = data.author.picture;
+      authorImage.src = data.getPictureUrl();
       authorImage.width = IMAGE_WIDTH;
       authorImage.height = IMAGE_HEIGTH;
     } else {

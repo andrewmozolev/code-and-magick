@@ -2,5 +2,5 @@
 
 require('./form.js');
 require('./game.js');
-require('./reviews.js');
+require('./review/index.js');
 require('./gallery/gallery.js');
